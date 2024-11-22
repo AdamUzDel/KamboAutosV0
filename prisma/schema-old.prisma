@@ -1,0 +1,97 @@
+// prisma/schema.prisma
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "node-api"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model CarMaker {
+  id         String      @id @default(cuid())
+  name       String      @unique
+  logo       String?
+  modelLines ModelLine[]
+}
+
+model ModelLine {
+  id         String   @id @default(cuid())
+  name       String
+  carMaker   CarMaker @relation(fields: [carMakerId], references: [id])
+  carMakerId String
+  years      Year[]
+
+  @@unique([name, carMakerId])
+}
+
+model Year {
+  id            String         @id @default(cuid())
+  year          Int
+  modelLine     ModelLine      @relation(fields: [modelLineId], references: [id])
+  modelLineId   String
+  modifications Modification[]
+
+  @@unique([year, modelLineId])
+}
+
+model Modification {
+  id     String @id @default(cuid())
+  name   String
+  year   Year   @relation(fields: [yearId], references: [id])
+  yearId String
+  parts  Part[]
+
+  @@unique([name, yearId])
+}
+
+model Category {
+  id    String @id @default(cuid())
+  name  String @unique
+  parts Part[]
+}
+
+model Part {
+  id            String         @id @default(cuid())
+  name          String
+  description   String
+  price         Float
+  image         String?
+  category      Category       @relation(fields: [categoryId], references: [id])
+  categoryId    String
+  modifications Modification[]
+  reviews       Review[]
+}
+
+model Review {
+  id      String @id @default(cuid())
+  rating  Int
+  comment String
+  user    User   @relation(fields: [userId], references: [id])
+  userId  String
+  part    Part   @relation(fields: [partId], references: [id])
+  partId  String
+}
+
+model User {
+  id       String   @id @default(cuid())
+  name     String
+  email    String   @unique
+  password String
+  role     Role     @default(USER)
+  reviews  Review[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}

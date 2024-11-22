@@ -1,0 +1,142 @@
+// prisma/schema.prisma
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "node-api"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model CarMaker {
+  id         String      @id @default(cuid())
+  name       String      @unique
+  logo       String?
+  modelLines ModelLine[]
+}
+
+model ModelLine {
+  id         String   @id @default(cuid())
+  name       String
+  carMaker   CarMaker @relation(fields: [carMakerId], references: [id])
+  carMakerId String
+  years      Year[]
+  parts      Part[]   // Add this line to create the relation with Part
+
+  @@unique([name, carMakerId])
+}
+
+model Year {
+  id            String         @id @default(cuid())
+  year          Int
+  modelLine     ModelLine      @relation(fields: [modelLineId], references: [id])
+  modelLineId   String
+  modifications Modification[]
+
+  @@unique([year, modelLineId])
+}
+
+model Modification {
+  id     String @id @default(cuid())
+  name   String
+  year   Year   @relation(fields: [yearId], references: [id])
+  yearId String
+  parts  Part[]
+
+  @@unique([name, yearId])
+}
+
+model Category {
+  id    String  @id @default(cuid())
+  name  String  @unique
+  image String? @default("/placeholder.svg")
+  parts Part[]
+}
+
+model Part {
+  id            String         @id @default(cuid())
+  name          String         @unique // Added unique constraint
+  description   String
+  price         Float
+  image         String?
+  stockQuantity Int            @default(0)
+  category      Category       @relation(fields: [categoryId], references: [id])
+  categoryId    String
+  modifications Modification[]
+  modelLine     ModelLine      @relation(fields: [modelLineId], references: [id]) // Added this line
+  modelLineId   String         // Added this line
+  reviews       Review[]
+  orderItems    OrderItem[]
+
+  // Composite Key if you want uniqueness based on name and modelLineId
+   @@unique([name, modelLineId])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  part      Part     @relation(fields: [partId], references: [id])
+  partId    String
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id         String   @id @default(cuid())
+  name       String
+  email      String   @unique
+  password   String
+  role       Role     @default(USER)
+  reviews    Review[]
+  orders     Order[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  user      User        @relation(fields: [userId], references: [id])
+  userId    String
+  items     OrderItem[]
+  total     Float
+  status    OrderStatus @default(PENDING)
+  address   String
+  city      String
+  postalCode String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model OrderItem {
+  id       String @id @default(cuid())
+  order    Order  @relation(fields: [orderId], references: [id])
+  orderId  String
+  part     Part   @relation(fields: [partId], references: [id])
+  partId   String
+  quantity Int
+  price    Float
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
