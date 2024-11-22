@@ -2,7 +2,7 @@
 import { NextRequest,NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { PrismaClient } from '@prisma/client'
-import { authOptions } from '../../auth/[...nextauth]/route'
+import { authOptions } from '@/lib/auth'
 
 const prisma = new PrismaClient()
 
@@ -19,6 +19,55 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
     return NextResponse.json(product)
   } catch (error) {
     return NextResponse.json({ message: 'Error fetching product', error }, { status: 500 })
+  }
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const {id} = await params
+    const body = await request.json()
+
+    const updatedProduct = await prisma.part.update({
+      where: { id },
+      data: {
+        ...(body.name && { name: body.name }),
+        ...(body.description && { description: body.description }),
+        ...(body.price && { price: parseFloat(body.price) }),
+        ...(body.stockQuantity && { stockQuantity: parseInt(body.stockQuantity) }),
+        ...(body.categoryId && { category: { connect: { id: body.categoryId } } }),
+        ...(body.modelLineId && { modelLine: { connect: { id: body.modelLineId } } }),
+        ...(body.yearId && { year: { connect: { id: body.yearId } } }),
+      },
+    })
+
+    return NextResponse.json(updatedProduct)
+  } catch (error) {
+    console.error('Error updating product:', error)
+    return NextResponse.json(
+      { message: 'Error updating product', error: (error as Error).message },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+  const session = await getServerSession(authOptions)
+
+  if (!session || session.user.role !== 'ADMIN') {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+  }
+
+  try {
+    await prisma.part.delete({
+      where: { id: params.id }
+    })
+    return new NextResponse(null, { status: 204 })
+  } catch (error) {
+    return NextResponse.json({ message: 'Error deleting product', error }, { status: 500 })
   }
 }
 
@@ -152,52 +201,3 @@ export async function PUT(
     )
   }
 } */
-
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const id = params.id
-    const body = await request.json()
-
-    const updatedProduct = await prisma.part.update({
-      where: { id },
-      data: {
-        ...(body.name && { name: body.name }),
-        ...(body.description && { description: body.description }),
-        ...(body.price && { price: parseFloat(body.price) }),
-        ...(body.stockQuantity && { stockQuantity: parseInt(body.stockQuantity) }),
-        ...(body.categoryId && { category: { connect: { id: body.categoryId } } }),
-        ...(body.modelLineId && { modelLine: { connect: { id: body.modelLineId } } }),
-        ...(body.yearId && { year: { connect: { id: body.yearId } } }),
-      },
-    })
-
-    return NextResponse.json(updatedProduct)
-  } catch (error) {
-    console.error('Error updating product:', error)
-    return NextResponse.json(
-      { message: 'Error updating product', error: (error as Error).message },
-      { status: 500 }
-    )
-  }
-}
-
-export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
-  const params = await props.params;
-  const session = await getServerSession(authOptions)
-
-  if (!session || session.user.role !== 'ADMIN') {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
-  }
-
-  try {
-    await prisma.part.delete({
-      where: { id: params.id }
-    })
-    return new NextResponse(null, { status: 204 })
-  } catch (error) {
-    return NextResponse.json({ message: 'Error deleting product', error }, { status: 500 })
-  }
-}

@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useToast } from '@/components/ui/use-toast'
-//import { updateProduct, createProduct } from '@/app/admin/actions/product-actions'
 
 interface Category {
   id: string
@@ -33,8 +32,22 @@ interface CarMaker {
   modelLines: ModelLine[]
 }
 
+interface Product {
+  id: string
+  name: string
+  description: string
+  price: number
+  stockQuantity: number
+  categoryId: string
+  modelLineId: string
+  //yearId: string
+  modelLine?: {
+    carMakerId: string
+  }
+}
+
 interface ProductFormProps {
-  product?: any
+  product?: Product
   categories: Category[]
   modelLines: ModelLine[]
   carMakers: CarMaker[]
@@ -43,15 +56,15 @@ interface ProductFormProps {
 export function ProductForm({ product, categories, modelLines, carMakers }: ProductFormProps) {
   const [name, setName] = useState(product?.name || '')
   const [description, setDescription] = useState(product?.description || '')
-  const [price, setPrice] = useState(product?.price || '')
-  const [stockQuantity, setStockQuantity] = useState(product?.stockQuantity || '')
+  const [price, setPrice] = useState(product?.price?.toString() || '')
+  const [stockQuantity, setStockQuantity] = useState(product?.stockQuantity?.toString() || '')
   const [categoryId, setCategoryId] = useState(product?.categoryId || '')
   const [carMakerId, setCarMakerId] = useState(product?.modelLine?.carMakerId || '')
   const [modelLineId, setModelLineId] = useState(product?.modelLineId || '')
-  const [yearId, setYearId] = useState(product?.yearId || '')
+  //const [yearId, setYearId] = useState(product?.yearId || '')
 
   const [filteredModelLines, setFilteredModelLines] = useState<ModelLine[]>([])
-  const [filteredYears, setFilteredYears] = useState<Year[]>([])
+  //const [filteredYears, setFilteredYears] = useState<Year[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const router = useRouter()
@@ -65,31 +78,31 @@ export function ProductForm({ product, categories, modelLines, carMakers }: Prod
     }
   }, [carMakerId, modelLines])
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (modelLineId) {
       const selectedModelLine = modelLines.find(ml => ml.id === modelLineId)
       setFilteredYears(selectedModelLine?.years || [])
     } else {
       setFilteredYears([])
     }
-  }, [modelLineId, modelLines])
+  }, [modelLineId, modelLines]) */
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsSubmitting(true)
 
     const formData = new FormData(e.currentTarget)
-    const updatedFields: Record<string, any> = {}
+    const updatedFields: Partial<Record<keyof Product, string | number>> = {}
 
     formData.forEach((value, key) => {
-      if (product) {
-        // For updates, only include changed fields
-        if (value !== '' && value !== product[key]) {
-          updatedFields[key] = value
+      if (key in (product || {})) {
+        const productKey = key as keyof Product
+        const stringValue = value.toString()
+        if (product && stringValue !== product[productKey]?.toString()) {
+          updatedFields[productKey] = stringValue
+        } else if (!product) {
+          updatedFields[productKey] = stringValue
         }
-      } else {
-        // For new products, include all fields
-        updatedFields[key] = value
       }
     })
 
@@ -113,7 +126,6 @@ export function ProductForm({ product, categories, modelLines, carMakers }: Prod
       })
 
       if (response.ok) {
-        //const result = await response.json()
         toast({
           title: 'Success',
           description: `Product ${product ? 'updated' : 'created'} successfully`,
@@ -192,7 +204,7 @@ export function ProductForm({ product, categories, modelLines, carMakers }: Prod
           </SelectContent>
         </Select>
       </div>
-      <div>
+      {/* <div>
         <label className="block mb-1">Year</label>
         <Select name="yearId" value={yearId} onValueChange={setYearId}>
           <SelectTrigger>
@@ -204,7 +216,7 @@ export function ProductForm({ product, categories, modelLines, carMakers }: Prod
             ))}
           </SelectContent>
         </Select>
-      </div>
+      </div> */}
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? 'Submitting...' : (product ? 'Update' : 'Create')} Product
       </Button>

@@ -1,20 +1,36 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { PrismaClient } from '@prisma/client'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { authOptions } from '@/lib/auth'
 
 const prisma = new PrismaClient()
 
-export async function POST(request: Request) {
+// Define an interface for the item structure
+interface OrderItem {
+  id: string
+  quantity: number
+  price: number
+}
+
+// Define an interface for the request body
+interface OrderRequestBody {
+  items: OrderItem[]
+  total: number
+  address: string
+  city: string
+  postalCode: string
+}
+
+export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions)
 
-  if (!session) {
+  if (!session || !session.user?.id) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
   }
 
-  const { items, total, address, city, postalCode } = await request.json()
-
   try {
+    const { items, total, address, city, postalCode }: OrderRequestBody = await request.json()
+
     const order = await prisma.order.create({
       data: {
         userId: session.user.id,
@@ -23,7 +39,7 @@ export async function POST(request: Request) {
         city,
         postalCode,
         items: {
-          create: items.map((item: any) => ({
+          create: items.map((item: OrderItem) => ({
             partId: item.id,
             quantity: item.quantity,
             price: item.price
@@ -37,6 +53,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(order, { status: 201 })
   } catch (error) {
-    return NextResponse.json({ message: 'Error creating order', error }, { status: 500 })
+    console.error('Error creating order:', error)
+    return NextResponse.json({ message: 'Error creating order', error: (error as Error).message }, { status: 500 })
   }
 }

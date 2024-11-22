@@ -1,11 +1,17 @@
-// app/admin/orders/[id]/page.tsx
 import prisma from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import { OrderDetails } from '@/components/admin/OrderDetails'
 
-export default async function AdminOrderPage({ params }: { params: { id: string } }) {
+interface PageProps {
+  params: Promise<{ id: string }>
+}
+
+export default async function AdminOrderPage({ params }: PageProps) {
+  // Await the params object to get the id
+  const { id } = await params
+
   const order = await prisma.order.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       user: true,
       items: {
