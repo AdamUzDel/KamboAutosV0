@@ -132,7 +132,7 @@ export function SearchComponent() {
 
   return (
     <div className="bg-gray-100 p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold mb-4">Find Your Auto Parts</h2>
+      <h2 className="text-2xl font-semibold mb-4">Shop by car</h2>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Select onValueChange={handleCarMakerChange} value={selectedCarMaker}>
           <SelectTrigger>

@@ -14,7 +14,8 @@ export default function Home() {
     <Suspense fallback={<div>Loading...</div>}>
       <SearchParamsWrapper>
         <div className="container mx-auto px-4">
-          <h1 className="text-4xl font-bold text-center my-8">Welcome to Kambo Autos</h1>
+          <h1 className="text-4xl font-bold text-center mt-10">Welcome to Kambo Autos</h1>
+          <p className='text-center mt-4 mb-8'>Find the best auto parts for your vehicle</p>
           <div className="flex justify-center mb-8">
             <SearchBar />
           </div>

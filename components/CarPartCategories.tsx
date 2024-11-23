@@ -20,7 +20,7 @@ export function CarPartCategories() {
   return (
     <section className="my-8 px-4 md:px-0">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl md:text-2xl font-semibold">Car Part Categories</h2>
+        <h2 className="text-xl md:text-2xl font-semibold">Shop by Category</h2>
         {hasMoreCategories && (
           <Link href="/categories" passHref>
             <Button variant="outline" className="flex items-center text-sm md:text-base">
