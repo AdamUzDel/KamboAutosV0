@@ -1,10 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { ShoppingCart, User, Menu, X, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useCart } from '@/contexts/CartContext'
 import { Badge } from '@/components/ui/badge'
 import { useSession, signOut } from 'next-auth/react'
@@ -19,8 +18,6 @@ export default function Header() {
   const { data: session } = useSession()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { cart } = useCart()
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
 
   const cartItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0)
 
@@ -30,24 +27,13 @@ export default function Header() {
     } else {
       document.body.style.overflow = 'unset'
     }
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
   }, [isMenuOpen])
 
   return (
     <header className="bg-white shadow-md">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link href="/" className="text-2xl font-bold text-blue-600">
-          <Image src={"/logo_black.png"} alt="kambo autos logo" width={100} height={100} />
+          Kambo Autos
         </Link>
         <nav className="hidden md:flex space-x-4 items-center">
           <Link href="/" className="text-gray-600 hover:text-blue-600">
