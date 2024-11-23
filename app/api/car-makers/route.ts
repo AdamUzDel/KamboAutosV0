@@ -1,6 +1,8 @@
 // app/api/car-makers/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/lib/auth'
 
 export async function GET() {
   try {
@@ -13,6 +15,14 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  // Get the session to check for admin role
+  const session = await getServerSession(authOptions);
+
+  // Check if the user is authorized
+  if (!session || session.user.role !== 'ADMIN') {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const { name, logo } = await request.json();
     const newCarMaker = await prisma.carMaker.create({
@@ -26,6 +36,14 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  // Get the session to check for admin role
+  const session = await getServerSession(authOptions);
+
+  // Check if the user is authorized
+  if (!session || session.user.role !== 'ADMIN') {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const { id, name, logo } = await request.json();
     const updatedCarMaker = await prisma.carMaker.update({
@@ -40,6 +58,14 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  // Get the session to check for admin role
+  const session = await getServerSession(authOptions);
+
+  // Check if the user is authorized
+  if (!session || session.user.role !== 'ADMIN') {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+  
   try {
     const { id } = await request.json();
     await prisma.carMaker.delete({

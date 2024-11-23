@@ -2,6 +2,7 @@
 export type CarMaker = {
     id: string;
     name: string;
+    logo?: string | null;
   };
   
   export type ModelLine = {
