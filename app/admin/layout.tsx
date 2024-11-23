@@ -1,4 +1,3 @@
-// app/admin/layout.tsx
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 import { AdminSidebar } from '@/components/admin/AdminSidebar'
@@ -20,9 +19,9 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-background">
       <AdminSidebar />
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="flex-1 px-8 pb-8 pt-4 overflow-y-auto">
         {children}
       </main>
     </div>

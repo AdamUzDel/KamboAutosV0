@@ -1,4 +1,3 @@
-// components/Promotions.tsx
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowRight } from 'lucide-react'
@@ -26,13 +25,13 @@ const promotions = [
 
 export function Promotions() {
   return (
-    <section className="my-12 bg-blue-50 py-8 px-4 rounded-lg">
+    <section className="my-12 bg-secondary py-8 px-4 rounded-lg">
       <h2 className="text-2xl font-semibold mb-6 text-center">Current Promotions</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {promotions.map((promo) => (
-          <Card key={promo.id} className="bg-white">
+          <Card key={promo.id}>
             <CardHeader>
-              <CardTitle className="text-blue-600">{promo.title}</CardTitle>
+              <CardTitle className="text-primary">{promo.title}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="mb-4">{promo.description}</p>

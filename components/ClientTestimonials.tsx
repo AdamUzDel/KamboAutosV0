@@ -1,4 +1,3 @@
-// components/ClientTestimonials.tsx
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Star } from 'lucide-react'
 
@@ -25,7 +24,7 @@ const testimonials = [
 
 export function ClientTestimonials() {
   return (
-    <section className="my-12 bg-gray-50 py-8 px-4 rounded-lg">
+    <section className="my-12 bg-secondary py-8 px-4 rounded-lg">
       <h2 className="text-2xl font-semibold mb-6 text-center">What Our Clients Say</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {testimonials.map((testimonial) => (
@@ -41,7 +40,7 @@ export function ClientTestimonials() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600">&ldquo;{testimonial.comment}&rdquo;</p>
+              <p className="text-muted-foreground">&ldquo;{testimonial.comment}&rdquo;</p>
             </CardContent>
           </Card>
         ))}

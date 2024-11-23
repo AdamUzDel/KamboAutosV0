@@ -1,12 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { ShoppingCart, User, Menu, X, ChevronDown } from 'lucide-react'
+import { ShoppingCart, User, Menu, X, ChevronDown, Sun, Moon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState, useEffect } from 'react'
 import { useCart } from '@/contexts/CartContext'
 import { Badge } from '@/components/ui/badge'
 import { useSession, signOut } from 'next-auth/react'
+import { useTheme } from 'next-themes'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,8 +19,14 @@ export default function Header() {
   const { data: session } = useSession()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { cart } = useCart()
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
 
   const cartItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     if (isMenuOpen) {
@@ -29,32 +36,44 @@ export default function Header() {
     }
   }, [isMenuOpen])
 
+  if (!mounted) {
+    return null
+  }
+
   return (
-    <header className="bg-white shadow-md">
+    <header className="bg-background shadow-md">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <Link href="/" className="text-2xl font-bold text-blue-600">
+        <Link href="/" className="text-2xl font-bold text-primary">
           Kambo Autos
         </Link>
         <nav className="hidden md:flex space-x-4 items-center">
-          <Link href="/" className="text-gray-600 hover:text-blue-600">
+          <Link href="/" className="text-foreground hover:text-primary transition-colors">
             Home
           </Link>
-          <Link href="/search" className="text-gray-600 hover:text-blue-600">
+          <Link href="/search" className="text-foreground hover:text-primary transition-colors">
             Search
           </Link>
-          <Link href="/categories" className="text-gray-600 hover:text-blue-600">
+          <Link href="/categories" className="text-foreground hover:text-primary transition-colors">
             Categories
           </Link>
         </nav>
         <div className="flex items-center space-x-4">
           <Link href="/cart" className="relative">
-            <ShoppingCart className="h-6 w-6 text-gray-600 hover:text-blue-600" />
+            <ShoppingCart className="h-6 w-6 text-foreground hover:text-primary transition-colors" />
             {cartItemsCount > 0 && (
               <Badge variant="destructive" className="absolute -top-2 -right-2">
                 {cartItemsCount}
               </Badge>
             )}
           </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="text-foreground hover:text-primary transition-colors"
+          >
+            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </Button>
           <div className="hidden md:block">
             {session ? (
               <DropdownMenu>
@@ -95,7 +114,7 @@ export default function Header() {
         </Button>
       </div>
       <div
-        className={`fixed top-0 right-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${
+        className={`fixed top-0 right-0 h-full w-64 bg-background shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -109,21 +128,21 @@ export default function Header() {
             <X className="h-6 w-6" />
           </Button>
           <nav className="mt-8 space-y-4">
-            <Link href="/" className="block text-gray-600 hover:text-blue-600">
+            <Link href="/" className="block text-foreground hover:text-primary transition-colors">
               Home
             </Link>
-            <Link href="/search" className="block text-gray-600 hover:text-blue-600">
+            <Link href="/search" className="block text-foreground hover:text-primary transition-colors">
               Search
             </Link>
-            <Link href="/categories" className="block text-gray-600 hover:text-blue-600">
+            <Link href="/categories" className="block text-foreground hover:text-primary transition-colors">
               Categories
             </Link>
             {session ? (
               <>
-                <Link href="/profile" className="block text-gray-600 hover:text-blue-600">
+                <Link href="/profile" className="block text-foreground hover:text-primary transition-colors">
                   Profile
                 </Link>
-                <Link href="/orders" className="block text-gray-600 hover:text-blue-600">
+                <Link href="/orders" className="block text-foreground hover:text-primary transition-colors">
                   Orders
                 </Link>
                 <Button variant="outline" className="w-full mt-4" onClick={() => signOut()}>
@@ -137,12 +156,19 @@ export default function Header() {
                 </Button>
               </Link>
             )}
+            <Button
+              variant="outline"
+              className="w-full mt-4"
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            >
+              {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+            </Button>
           </nav>
         </div>
       </div>
       {isMenuOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          className="fixed inset-0 bg-background/80 z-40"
           onClick={() => setIsMenuOpen(false)}
         ></div>
       )}

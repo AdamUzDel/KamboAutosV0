@@ -58,8 +58,8 @@ export default async function EditProduct({ params }: PageProps) {
     console.log('Product fetched successfully:', product.id)
 
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Edit Product: {product.name}</h1>
+      <div className="container mx-auto">
+        <h1 className="text-3xl font-bold mb-6 text-center">Edit Product: {product.name}</h1>
         <ProductForm
           product={product}
           categories={categories}

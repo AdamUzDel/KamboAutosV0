@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useToast } from '@/components/ui/use-toast'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
 
 interface Category {
   id: string
@@ -40,7 +42,6 @@ interface Product {
   stockQuantity: number
   categoryId: string
   modelLineId: string
-  //yearId: string
   modelLine?: {
     carMakerId: string
   }
@@ -61,10 +62,8 @@ export function ProductForm({ product, categories, modelLines, carMakers }: Prod
   const [categoryId, setCategoryId] = useState(product?.categoryId || '')
   const [carMakerId, setCarMakerId] = useState(product?.modelLine?.carMakerId || '')
   const [modelLineId, setModelLineId] = useState(product?.modelLineId || '')
-  //const [yearId, setYearId] = useState(product?.yearId || '')
 
   const [filteredModelLines, setFilteredModelLines] = useState<ModelLine[]>([])
-  //const [filteredYears, setFilteredYears] = useState<Year[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const router = useRouter()
@@ -77,15 +76,6 @@ export function ProductForm({ product, categories, modelLines, carMakers }: Prod
       setFilteredModelLines([])
     }
   }, [carMakerId, modelLines])
-
-  /* useEffect(() => {
-    if (modelLineId) {
-      const selectedModelLine = modelLines.find(ml => ml.id === modelLineId)
-      setFilteredYears(selectedModelLine?.years || [])
-    } else {
-      setFilteredYears([])
-    }
-  }, [modelLineId, modelLines]) */
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -148,268 +138,108 @@ export function ProductForm({ product, categories, modelLines, carMakers }: Prod
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="name" className="block mb-1">Name</label>
-        <Input type="text" id="name" name="name" value={name} onChange={(e) => setName(e.target.value)} required={!product} />
-      </div>
-      <div>
-        <label htmlFor="description" className="block mb-1">Description</label>
-        <Textarea id="description" name="description" value={description} onChange={(e) => setDescription(e.target.value)} required={!product} />
-      </div>
-      <div>
-        <label htmlFor="price" className="block mb-1">Price</label>
-        <Input type="number" id="price" name="price" value={price} onChange={(e) => setPrice(e.target.value)} required={!product} min="0" step="0.01" />
-      </div>
-      <div>
-        <label htmlFor="stockQuantity" className="block mb-1">Stock Quantity</label>
-        <Input type="number" id="stockQuantity" name="stockQuantity" value={stockQuantity} onChange={(e) => setStockQuantity(e.target.value)} required={!product} min="0" />
-      </div>
-      <div>
-        <label className="block mb-1">Category</label>
-        <Select name="categoryId" value={categoryId} onValueChange={setCategoryId}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select a category" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((category) => (
-              <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div>
-        <label className="block mb-1">Car Maker</label>
-        <Select name="carMakerId" value={carMakerId} onValueChange={setCarMakerId}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select a car maker" />
-          </SelectTrigger>
-          <SelectContent>
-            {carMakers.map((carMaker) => (
-              <SelectItem key={carMaker.id} value={carMaker.id}>{carMaker.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div>
-        <label className="block mb-1">Model Line</label>
-        <Select name="modelLineId" value={modelLineId} onValueChange={setModelLineId}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select a model line" />
-          </SelectTrigger>
-          <SelectContent>
-            {filteredModelLines.map((modelLine) => (
-              <SelectItem key={modelLine.id} value={modelLine.id}>{modelLine.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      {/* <div>
-        <label className="block mb-1">Year</label>
-        <Select name="yearId" value={yearId} onValueChange={setYearId}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select a year" />
-          </SelectTrigger>
-          <SelectContent>
-            {filteredYears.map((year) => (
-              <SelectItem key={year.id} value={year.id}>{year.year}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div> */}
-      <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Submitting...' : (product ? 'Update' : 'Create')} Product
-      </Button>
-    </form>
+    <Card className="w-full max-w-2xl mx-auto">
+      <CardHeader>
+        <CardTitle>{product ? 'Edit Product' : 'Add New Product'}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="carMaker">Car Maker</Label>
+              <Select name="carMakerId" value={carMakerId} onValueChange={setCarMakerId}>
+                <SelectTrigger id="carMaker">
+                  <SelectValue placeholder="Select a Car Maker" />
+                </SelectTrigger>
+                <SelectContent>
+                  {carMakers.map((maker) => (
+                    <SelectItem key={maker.id} value={maker.id}>{maker.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="modelLine">Model Line</Label>
+              <Select name="modelLineId" value={modelLineId} onValueChange={setModelLineId}>
+                <SelectTrigger id="modelLine">
+                  <SelectValue placeholder="Select a Model Line" />
+                </SelectTrigger>
+                <SelectContent>
+                  {filteredModelLines.map((line) => (
+                    <SelectItem key={line.id} value={line.id}>{line.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="category">Category</Label>
+            <Select name="categoryId" value={categoryId} onValueChange={setCategoryId}>
+              <SelectTrigger id="category">
+                <SelectValue placeholder="Select a Category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="name">Product Name</Label>
+            <Input id="name" name="name" value={name} onChange={(e) => setName(e.target.value)} required={!product} />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea 
+              id="description" 
+              name="description" 
+              value={description} 
+              onChange={(e) => setDescription(e.target.value)} 
+              required={!product}
+              className="min-h-[100px]"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="price">Price</Label>
+              <Input
+                id="price"
+                name="price"
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                required={!product}
+                min="0"
+                step="0.01"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="stockQuantity">Stock Quantity</Label>
+              <Input
+                id="stockQuantity"
+                name="stockQuantity"
+                type="number"
+                value={stockQuantity}
+                onChange={(e) => setStockQuantity(e.target.value)}
+                required={!product}
+                min="0"
+              />
+            </div>
+          </div>
+        </form>
+      </CardContent>
+      <CardFooter>
+        <Button type="submit" className="w-full" onClick={() => handleSubmit} disabled={isSubmitting}>
+          {isSubmitting ? 'Submitting...' : (product ? 'Update' : 'Create')} Product
+        </Button>
+      </CardFooter>
+    </Card>
   )
 }
-
-// previously working code
-/* // components/admin/ProductForm.tsx
-'use client'
-
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useToast } from '@/components/ui/use-toast'
-
-interface Category {
-  id: string
-  name: string
-}
-
-interface Year {
-  id: string
-  year: number
-}
-
-interface ModelLine {
-  id: string
-  name: string
-  carMakerId: string
-  years: Year[]
-}
-
-interface CarMaker {
-  id: string
-  name: string
-  logo: string | null
-  modelLines: ModelLine[]
-}
-
-interface ProductFormProps {
-  product?: any
-  categories: Category[]
-  modelLines: ModelLine[]
-  carMakers: CarMaker[]
-}
-
-export function ProductForm({ product, categories, modelLines, carMakers }: ProductFormProps) {
-  const [name, setName] = useState(product?.name || '')
-  const [description, setDescription] = useState(product?.description || '')
-  const [price, setPrice] = useState(product?.price || '')
-  const [stockQuantity, setStockQuantity] = useState(product?.stockQuantity || '')
-  const [categoryId, setCategoryId] = useState(product?.categoryId || '')
-  const [carMakerId, setCarMakerId] = useState(product?.modelLine?.carMakerId || '')
-  const [modelLineId, setModelLineId] = useState(product?.modelLineId || '')
-  const [yearId, setYearId] = useState(product?.yearId || '')
-
-  const [filteredModelLines, setFilteredModelLines] = useState<ModelLine[]>([])
-  const [filteredYears, setFilteredYears] = useState<Year[]>([])
-
-  const router = useRouter()
-  const { toast } = useToast()
-
-  useEffect(() => {
-    if (carMakerId) {
-      setFilteredModelLines(modelLines.filter(ml => ml.carMakerId === carMakerId))
-    } else {
-      setFilteredModelLines([])
-    }
-  }, [carMakerId, modelLines])
-
-  useEffect(() => {
-    if (modelLineId) {
-      const selectedModelLine = modelLines.find(ml => ml.id === modelLineId)
-      setFilteredYears(selectedModelLine?.years || [])
-    } else {
-      setFilteredYears([])
-    }
-  }, [modelLineId, modelLines])
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    try {
-      const url = product ? `/api/products/${product.id}` : '/api/products'
-      const method = product ? 'PUT' : 'POST'
-
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          description,
-          price: parseFloat(price),
-          stockQuantity: parseInt(stockQuantity),
-          categoryId,
-          modelLineId,
-          yearId,
-        }),
-      })
-
-      if (response.ok) {
-        toast({
-          title: 'Success',
-          description: `Product ${product ? 'updated' : 'created'} successfully`,
-        })
-        router.push('/admin/products')
-      } else {
-        const errorData = await response.json()
-        throw new Error(errorData.message || `Failed to ${product ? 'update' : 'create'} product`)
-      }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: `Failed to ${product ? 'update' : 'create'} product. ${error instanceof Error ? error.message : 'Please try again.'}`,
-        variant: 'destructive',
-      })
-    }
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="name" className="block mb-1">Name</label>
-        <Input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} required />
-      </div>
-      <div>
-        <label htmlFor="description" className="block mb-1">Description</label>
-        <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} required />
-      </div>
-      <div>
-        <label htmlFor="price" className="block mb-1">Price</label>
-        <Input type="number" id="price" value={price} onChange={(e) => setPrice(e.target.value)} required min="0" step="0.01" />
-      </div>
-      <div>
-        <label htmlFor="stockQuantity" className="block mb-1">Stock Quantity</label>
-        <Input type="number" id="stockQuantity" value={stockQuantity} onChange={(e) => setStockQuantity(e.target.value)} required min="0" />
-      </div>
-      <div>
-        <label className="block mb-1">Category</label>
-        <Select value={categoryId} onValueChange={setCategoryId}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select a category" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((category) => (
-              <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div>
-        <label className="block mb-1">Car Maker</label>
-        <Select value={carMakerId} onValueChange={setCarMakerId}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select a car maker" />
-          </SelectTrigger>
-          <SelectContent>
-            {carMakers.map((carMaker) => (
-              <SelectItem key={carMaker.id} value={carMaker.id}>{carMaker.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div>
-        <label className="block mb-1">Model Line</label>
-        <Select value={modelLineId} onValueChange={setModelLineId}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select a model line" />
-          </SelectTrigger>
-          <SelectContent>
-            {filteredModelLines.map((modelLine) => (
-              <SelectItem key={modelLine.id} value={modelLine.id}>{modelLine.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div>
-        <label className="block mb-1">Year</label>
-        <Select value={yearId} onValueChange={setYearId}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select a year" />
-          </SelectTrigger>
-          <SelectContent>
-            {filteredYears.map((year) => (
-              <SelectItem key={year.id} value={year.id}>{year.year}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <Button type="submit">{product ? 'Update' : 'Create'} Product</Button>
-    </form>
-  )
-} */

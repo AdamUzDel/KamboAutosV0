@@ -1,4 +1,3 @@
-// components/SearchComponent.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -7,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button'
 import { Search } from 'lucide-react'
 import { CarMaker, ModelLine, Year, Modification } from '@prisma/client'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function SearchComponent() {
   const router = useRouter()
@@ -131,58 +131,62 @@ export function SearchComponent() {
   }
 
   return (
-    <div className="bg-gray-100 p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold mb-4">Shop by car</h2>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Select onValueChange={handleCarMakerChange} value={selectedCarMaker}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select Car Maker" />
-          </SelectTrigger>
-          <SelectContent>
-            {carMakers.map((maker) => (
-              <SelectItem key={maker.id} value={maker.id}>
-                {maker.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+    <Card>
+      <CardHeader>
+        <CardTitle>Shop by car</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Select onValueChange={handleCarMakerChange} value={selectedCarMaker}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select Car Maker" />
+            </SelectTrigger>
+            <SelectContent>
+              {carMakers.map((maker) => (
+                <SelectItem key={maker.id} value={maker.id}>
+                  {maker.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <Select onValueChange={handleModelLineChange} value={selectedModelLine} disabled={!selectedCarMaker}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select Model Line" />
-          </SelectTrigger>
-          <SelectContent>
-            {modelLines.map((line) => (
-              <SelectItem key={line.id} value={line.id}>{line.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <Select onValueChange={handleModelLineChange} value={selectedModelLine} disabled={!selectedCarMaker}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select Model Line" />
+            </SelectTrigger>
+            <SelectContent>
+              {modelLines.map((line) => (
+                <SelectItem key={line.id} value={line.id}>{line.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <Select onValueChange={handleYearChange} value={selectedYear} disabled={!selectedModelLine}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select Year" />
-          </SelectTrigger>
-          <SelectContent>
-            {years.map((year) => (
-              <SelectItem key={year.id} value={year.id}>{year.year.toString()}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <Select onValueChange={handleYearChange} value={selectedYear} disabled={!selectedModelLine}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select Year" />
+            </SelectTrigger>
+            <SelectContent>
+              {years.map((year) => (
+                <SelectItem key={year.id} value={year.id}>{year.year.toString()}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <Select onValueChange={setSelectedModification} value={selectedModification} disabled={!selectedYear}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select Modification" />
-          </SelectTrigger>
-          <SelectContent>
-            {modifications.map((mod) => (
-              <SelectItem key={mod.id} value={mod.id}>{mod.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <Button className="mt-4 w-full" onClick={handleSearch} disabled={!selectedModification}>
-        <Search className="mr-2 h-4 w-4" /> Search Parts
-      </Button>
-    </div>
+          <Select onValueChange={setSelectedModification} value={selectedModification} disabled={!selectedYear}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select Modification" />
+            </SelectTrigger>
+            <SelectContent>
+              {modifications.map((mod) => (
+                <SelectItem key={mod.id} value={mod.id}>{mod.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <Button className="mt-4 w-full" onClick={handleSearch} disabled={!selectedModification}>
+          <Search className="mr-2 h-4 w-4" /> Search Parts
+        </Button>
+      </CardContent>
+    </Card>
   )
 }
