@@ -1,9 +1,10 @@
-// components/PopularCarMakers.tsx
 'use client'
 
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 
 interface CarMaker {
   id: number
@@ -12,17 +13,9 @@ interface CarMaker {
   modelLines?: string[]
 }
 
-/* const carMakers = [
-  { id: 1, name: 'Toyota', logo: '/placeholder.svg', slug: 'toyota' },
-  { id: 2, name: 'Honda', logo: '/placeholder.svg', slug: 'honda' },
-  { id: 3, name: 'Ford', logo: '/placeholder.svg', slug: 'ford' },
-  { id: 4, name: 'Chevrolet', logo: '/placeholder.svg', slug: 'chevrolet' },
-  { id: 5, name: 'BMW', logo: '/placeholder.svg', slug: 'bmw' },
-  { id: 6, name: 'Mercedes-Benz', logo: '/placeholder.svg', slug: 'mercedes-benz' },
-] */
-
 export function PopularCarMakers() {
   const [carMakers, setCarMakers] = useState<CarMaker[]>([])
+  const [showAll, setShowAll] = useState(false)
 
   useEffect(() => {
     async function fetchCarMakers() {
@@ -37,30 +30,54 @@ export function PopularCarMakers() {
     fetchCarMakers()
   }, [])
 
-  if (!carMakers) {
+  if (!carMakers.length) {
     return null
   }
 
+  const visibleMakers = showAll ? carMakers : carMakers.slice(0, 18)
+
   return (
-    <section className="my-12">
+    <section className="my-12 px-4 md:px-0">
       <h2 className="text-2xl font-semibold mb-6">Popular Car Makers</h2>
-      <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
-        {carMakers.map((maker) => (
-            <Link
-              key={maker.id}
-              href={`/search?carMakerId=${maker.id}`}
-              className="h-100 w-100 flex flex-col items-center  justify-items-stretch p-4"
-            >
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-4 md:gap-6">
+        {visibleMakers.map((maker) => (
+          <Link
+            key={maker.id}
+            href={`/search?carMakerId=${maker.id}`}
+            className="flex flex-col items-center justify-center p-2 md:p-4 border rounded-lg hover:shadow-md transition-shadow"
+          >
+            <div className="relative w-16 h-16 md:w-20 md:h-20 mb-2">
               <Image
                 src={maker.logo || '/placeholder.svg'}
                 alt={maker.name}
-                width={100}
-                height={100}
-                className="mb-2 w-100 h-full p-4 border rounded-lg hover:shadow-md transition-shadow" />
-                <span className="text-center font-medium">{maker.name}</span>
-            </Link>
+                fill
+                sizes="(max-width: 768px) 33vw, 16vw"
+                className="object-contain p-2"
+              />
+            </div>
+            <span className="text-center text-sm md:text-base font-medium">{maker.name}</span>
+          </Link>
         ))}
       </div>
+      {carMakers.length > 18 && (
+        <div className="mt-6 text-center">
+          <Button
+            variant="outline"
+            onClick={() => setShowAll(!showAll)}
+            className="inline-flex items-center"
+          >
+            {showAll ? (
+              <>
+                Show Less <ChevronUp className="ml-2 h-4 w-4" />
+              </>
+            ) : (
+              <>
+                Show More <ChevronDown className="ml-2 h-4 w-4" />
+              </>
+            )}
+          </Button>
+        </div>
+      )}
     </section>
   )
 }

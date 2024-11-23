@@ -74,7 +74,6 @@ const AddProduct: React.FC = () => {
 
   return (
     <div>
-      <h1>Add New Product</h1>
       <AddProductForm
         carMakers={carMakers}
         categories={categories}
