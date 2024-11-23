@@ -45,7 +45,7 @@ export default function CarMakersPage() {
       } else {
         throw new Error('Failed to fetch car makers')
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to fetch car makers',
@@ -72,7 +72,7 @@ export default function CarMakersPage() {
       } else {
         throw new Error('Failed to create car maker')
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to create car maker',
@@ -102,7 +102,7 @@ export default function CarMakersPage() {
       } else {
         throw new Error('Failed to update car maker')
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to update car maker',
@@ -130,7 +130,7 @@ export default function CarMakersPage() {
       } else {
         throw new Error('Failed to delete car maker')
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to delete car maker',
