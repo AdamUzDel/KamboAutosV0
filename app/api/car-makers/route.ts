@@ -1,8 +1,9 @@
-// app/api/car-makers/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
+import { storage } from "@/lib/firebase";
+import { ref, deleteObject } from "firebase/storage";
 
 export async function GET() {
   try {
@@ -15,10 +16,8 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  // Get the session to check for admin role
   const session = await getServerSession(authOptions);
 
-  // Check if the user is authorized
   if (!session || session.user.role !== 'ADMIN') {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
@@ -36,16 +35,21 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  // Get the session to check for admin role
   const session = await getServerSession(authOptions);
 
-  // Check if the user is authorized
   if (!session || session.user.role !== 'ADMIN') {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const { id, name, logo } = await request.json();
+    const { id, name, logo, oldLogoUrl } = await request.json();
+    
+    // If there's a new logo and an old logo, delete the old one
+    if (logo && oldLogoUrl) {
+      const oldLogoRef = ref(storage, oldLogoUrl);
+      await deleteObject(oldLogoRef);
+    }
+
     const updatedCarMaker = await prisma.carMaker.update({
       where: { id },
       data: { name, logo },
@@ -58,20 +62,27 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  // Get the session to check for admin role
   const session = await getServerSession(authOptions);
 
-  // Check if the user is authorized
   if (!session || session.user.role !== 'ADMIN') {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
   
   try {
-    const { id } = await request.json();
+    const { id, logoUrl } = await request.json();
+
+    // Delete the logo from Firebase Storage if it exists
+    if (logoUrl) {
+      const logoRef = ref(storage, logoUrl);
+      await deleteObject(logoRef);
+    }
+
+    // Delete the car maker from the database
     await prisma.carMaker.delete({
       where: { id },
     });
-    return NextResponse.json({ message: 'Car maker deleted successfully' });
+
+    return NextResponse.json({ message: 'Car maker and associated logo deleted successfully' });
   } catch (error) {
     console.error('Error deleting car maker:', error);
     return NextResponse.json({ error: 'Error deleting car maker' }, { status: 500 });

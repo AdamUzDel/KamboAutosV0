@@ -10,6 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { CarMaker } from '@/lib/types'
+import { PhotoUpload } from '@/components/PhotoUpload'
+import Image from 'next/image'
 
 export default function CarMakersPage() {
   const [carMakers, setCarMakers] = useState<CarMaker[]>([])
@@ -113,14 +115,14 @@ export default function CarMakersPage() {
     }
   }
 
-  const handleDeleteCarMaker = async (id: string) => {
+  const handleDeleteCarMaker = async (id: string, logoUrl: string | undefined) => {
     if (!confirm('Are you sure you want to delete this car maker?')) return
-
+  
     try {
       const response = await fetch('/api/car-makers', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
+        body: JSON.stringify({ id, logoUrl }),
       })
       if (response.ok) {
         toast({ title: 'Success', description: 'Car maker deleted successfully' })
@@ -144,6 +146,14 @@ export default function CarMakersPage() {
     formRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  const handlePhotoUploaded = (url: string) => {
+    if (editingCarMaker) {
+      setEditingCarMaker({ ...editingCarMaker, logo: url })
+    } else {
+      setNewCarMaker({ ...newCarMaker, logo: url })
+    }
+  }
+
   if (status === "loading") {
     return <div>Loading...</div>
   }
@@ -153,7 +163,7 @@ export default function CarMakersPage() {
   }
 
   return (
-    <div className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    <div className="container mx-auto py-4 px-0 md:px-4 lg:px-8">
       <h1 className="text-2xl font-bold mb-5">Manage Car Makers</h1>
       
       <Card className="mb-8">
@@ -162,26 +172,28 @@ export default function CarMakersPage() {
         </CardHeader>
         <CardContent>
           <form ref={formRef} onSubmit={editingCarMaker ? handleUpdateCarMaker : handleCreateCarMaker} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                ref={nameInputRef}
-                placeholder="Car Maker Name"
-                value={editingCarMaker ? editingCarMaker.name : newCarMaker.name}
-                onChange={(e) => editingCarMaker 
-                  ? setEditingCarMaker({...editingCarMaker, name: e.target.value})
-                  : setNewCarMaker({...newCarMaker, name: e.target.value})
-                }
-                required
-              />
-              <Input
-                placeholder="Logo URL"
-                value={editingCarMaker ? editingCarMaker.logo || '' : newCarMaker.logo || ''}
-                onChange={(e) => editingCarMaker
-                  ? setEditingCarMaker({...editingCarMaker, logo: e.target.value})
-                  : setNewCarMaker({...newCarMaker, logo: e.target.value})
-                }
-              />
-            </div>
+            <Input
+              ref={nameInputRef}
+              placeholder="Car Maker Name"
+              value={editingCarMaker ? editingCarMaker.name : newCarMaker.name}
+              onChange={(e) => editingCarMaker 
+                ? setEditingCarMaker({...editingCarMaker, name: e.target.value})
+                : setNewCarMaker({...newCarMaker, name: e.target.value})
+              }
+              required
+            />
+            <PhotoUpload onPhotoUploaded={handlePhotoUploaded} />
+            {(editingCarMaker?.logo || newCarMaker.logo) && (
+              <div className="mt-4">
+                <Image 
+                  src={editingCarMaker?.logo || newCarMaker.logo || '/placeholder.svg'} 
+                  alt="Car Maker Logo" 
+                  width={100} 
+                  height={100} 
+                  className="rounded-md"
+                />
+              </div>
+            )}
             <div className="flex flex-col sm:flex-row gap-2">
               <Button type="submit" className="w-full sm:w-auto" disabled={isSubmitting}>
                 {isSubmitting ? (
@@ -216,14 +228,26 @@ export default function CarMakersPage() {
             {carMakers.map((carMaker) => (
               <TableRow key={carMaker.id}>
                 <TableCell className="font-medium">{carMaker.name}</TableCell>
-                <TableCell>{carMaker.logo ? 'Yes' : 'No'}</TableCell>
+                <TableCell>
+                  {carMaker.logo ? (
+                    <Image 
+                      src={carMaker.logo} 
+                      alt={carMaker.name} 
+                      width={50} 
+                      height={50} 
+                      className="rounded-md"
+                    />
+                  ) : (
+                    <span>No logo</span>
+                  )}
+                </TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
                     <Button variant="ghost" onClick={() => handleEdit(carMaker)}>
                       <Pencil className="h-4 w-4" />
                       <span className="sr-only">Edit</span>
                     </Button>
-                    <Button variant="ghost" onClick={() => handleDeleteCarMaker(carMaker.id)}>
+                    <Button variant="ghost" onClick={() => handleDeleteCarMaker(carMaker.id, carMaker.logo ?? undefined)}>
                       <Trash2 className="h-4 w-4" />
                       <span className="sr-only">Delete</span>
                     </Button>
