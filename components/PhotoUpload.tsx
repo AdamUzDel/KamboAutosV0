@@ -4,25 +4,8 @@ import React, { useState, useRef } from 'react'
 import { Button } from "@/components/ui/button"
 import { Camera, Upload } from 'lucide-react'
 import { useToast } from "@/components/ui/use-toast"
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
-import { initializeApp } from "firebase/app"
-// import { getAnalytics } from "firebase/analytics"
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyA5Azonf8yRNRJVfDSAabDqlPwEeApmbcg",
-  authDomain: "kamboautos.firebaseapp.com",
-  projectId: "kamboautos",
-  storageBucket: "kamboautos.appspot.com",
-  messagingSenderId: "899743671136",
-  appId: "1:899743671136:web:d8fce6b4d4448efc50f405",
-  measurementId: "G-JJDW469VDB"
-}
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig)
-//const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null
-const storage = getStorage(app)
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
+import { storage } from "@/lib/firebase"
 
 interface PhotoUploadProps {
   onPhotoUploaded: (url: string) => void

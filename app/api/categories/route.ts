@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
+import { ref, deleteObject } from "firebase/storage";
+import { storage } from "@/lib/firebase";
 
 export async function GET() {
   try {
@@ -60,11 +62,20 @@ export async function DELETE(request: NextRequest) {
   }
   
   try {
-    const { id } = await request.json();
+    const { id, imageUrl } = await request.json();
+
+    // Delete image from Firebase Storage
+    if (imageUrl) {
+      const imageRef = ref(storage, imageUrl);
+      await deleteObject(imageRef);
+    }
+
+    // Delete category from database
     await prisma.category.delete({
       where: { id },
     });
-    return NextResponse.json({ message: 'Category deleted successfully' });
+
+    return NextResponse.json({ message: 'Category and associated image deleted successfully' });
   } catch (error) {
     console.error('Error deleting category:', error);
     return NextResponse.json({ error: 'Error deleting category' }, { status: 500 });
