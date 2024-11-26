@@ -6,7 +6,7 @@ import { Camera, Upload } from 'lucide-react'
 import { useToast } from "@/components/ui/use-toast"
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
 import { initializeApp } from "firebase/app"
-import { getAnalytics } from "firebase/analytics"
+// import { getAnalytics } from "firebase/analytics"
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -21,7 +21,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig)
-const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null
+//const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null
 const storage = getStorage(app)
 
 interface PhotoUploadProps {
