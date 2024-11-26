@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Package, ShoppingCart, BarChart, Car, List, Calendar, Settings, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Package, ShoppingCart, BarChart, Car, List, Calendar, Settings, ChevronLeft, ChevronRight, Tag } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
@@ -12,6 +12,7 @@ const navItems = [
   { href: '/admin', label: 'Dashboard', icon: BarChart },
   { href: '/admin/products', label: 'Products', icon: Package },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
+  { href: '/admin/categories', label: 'Categories', icon: Tag },
   { href: '/admin/car-makers', label: 'Car Makers', icon: Car },
   { href: '/admin/model-lines', label: 'Model Lines', icon: List },
   { href: '/admin/years', label: 'Years', icon: Calendar },
