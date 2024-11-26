@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Package, ShoppingCart, BarChart, Car, List, Calendar, Settings, ChevronLeft, ChevronRight, Tag } from 'lucide-react'
@@ -19,9 +19,35 @@ const navItems = [
   { href: '/admin/modifications', label: 'Modifications', icon: Settings },
 ]
 
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkIsMobile = () => setIsMobile(window.innerWidth < 768)
+    checkIsMobile()
+    window.addEventListener('resize', checkIsMobile)
+    return () => window.removeEventListener('resize', checkIsMobile)
+  }, [])
+
+  return isMobile
+}
+
 export function AdminSidebar() {
   const pathname = usePathname()
+  const isMobile = useIsMobile()
   const [isCollapsed, setIsCollapsed] = useState(false)
+
+  useEffect(() => {
+    if (isMobile) {
+      setIsCollapsed(true)
+    }
+  }, [isMobile])
+
+  const toggleSidebar = () => {
+    if (!isMobile) {
+      setIsCollapsed(!isCollapsed)
+    }
+  }
 
   return (
     <aside className={cn(
@@ -30,14 +56,16 @@ export function AdminSidebar() {
     )}>
       <div className="flex items-center justify-between p-4">
         <h1 className={cn("text-xl font-bold", isCollapsed && "hidden")}>Admin Panel</h1>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="text-white hover:bg-gray-800"
-        >
-          {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        </Button>
+        {!isMobile && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="text-white hover:bg-gray-800"
+          >
+            {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </Button>
+        )}
       </div>
       <ScrollArea className="flex-grow">
         <nav className="px-2 py-4">

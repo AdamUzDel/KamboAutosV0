@@ -163,7 +163,7 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    <div className="container sm:mx-0 mx-auto py-4 md:px-4 px-0 lg:px-8">
       <h1 className="text-2xl font-bold mb-5">Manage Categories</h1>
       
       <Card className="mb-8">

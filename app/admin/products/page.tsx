@@ -10,7 +10,7 @@ export default async function AdminProducts() {
   const products = await getProducts()
 
   return (
-    <div className="container mx-auto">
+    <div className="container sm:mx-0 px-0 mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold">Products</h1>
         <Link href="/admin/products/add" passHref>
