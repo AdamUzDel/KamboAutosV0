@@ -1,9 +1,10 @@
 // Base types for each entity
 export type CarMaker = {
-    id: string;
-    name: string;
-    logo?: string | null;
-  };
+  id: string;
+  name: string;
+  logo?: string | null;
+  modelLines: ModelLine[];
+};
   
   export type ModelLine = {
     id: string;
@@ -47,3 +48,17 @@ export interface AddProductFormProps {
     categories: Category[];
     onSubmit: (productData: ProductFormData) => void;
   }
+
+export interface Product {
+  id: string
+  name: string
+  description: string
+  price: number
+  stockQuantity: number
+  categoryId: string
+  modelLineId: string
+  image: string | null // Updated to allow null
+  modelLine?: {
+    carMakerId: string
+  }
+}

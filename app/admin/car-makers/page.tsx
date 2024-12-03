@@ -15,7 +15,7 @@ import Image from 'next/image'
 
 export default function CarMakersPage() {
   const [carMakers, setCarMakers] = useState<CarMaker[]>([])
-  const [newCarMaker, setNewCarMaker] = useState<Omit<CarMaker, 'id'>>({ name: '', logo: '' })
+  const [newCarMaker, setNewCarMaker] = useState<Omit<CarMaker, 'id'>>({ name: '', logo: '', modelLines: [] })
   const [editingCarMaker, setEditingCarMaker] = useState<CarMaker | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
@@ -67,7 +67,7 @@ export default function CarMakersPage() {
       })
       if (response.ok) {
         toast({ title: 'Success', description: 'Car maker created successfully' })
-        setNewCarMaker({ name: '', logo: '' })
+        setNewCarMaker({ name: '', logo: '', modelLines: [] })
         fetchCarMakers()
       } else if (response.status === 401) {
         toast({ title: 'Error', description: 'Unauthorized access', variant: 'destructive' })
@@ -221,6 +221,7 @@ export default function CarMakersPage() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Logo</TableHead>
+              <TableHead>Model Lines</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -241,6 +242,7 @@ export default function CarMakersPage() {
                     <span>No logo</span>
                   )}
                 </TableCell>
+                <TableCell>{carMaker.modelLines.length}</TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
                     <Button variant="ghost" onClick={() => handleEdit(carMaker)}>

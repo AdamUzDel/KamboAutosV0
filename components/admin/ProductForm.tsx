@@ -12,58 +12,16 @@ import { Label } from "@/components/ui/label"
 import { PhotoUpload } from '@/components/PhotoUpload'
 import { Loader2 } from 'lucide-react'
 import Image from 'next/image'
-
-interface Category {
-  id: string
-  name: string
-}
-
-interface Year {
-  id: string
-  year: number
-}
-
-interface Modification {
-  id: string
-  name: string
-}
-
-interface ModelLine {
-  id: string
-  name: string
-  carMakerId: string
-  years: Year[]
-}
-
-interface CarMaker {
-  id: string
-  name: string
-  logo: string | null
-  modelLines: ModelLine[]
-}
-
-interface Product {
-  id: string
-  name: string
-  description: string
-  price: number
-  stockQuantity: number
-  categoryId: string
-  modelLineId: string
-  image: string
-  modelLine?: {
-    carMakerId: string
-  }
-}
+import { CarMaker, ModelLine, Year, Modification, Category, Product, ProductFormData } from '@/lib/types'
 
 interface ProductFormProps {
   product?: Product
   categories: Category[]
-  modelLines: ModelLine[]
   carMakers: CarMaker[]
+  onSubmit: (productData: ProductFormData) => void
 }
 
-export function ProductForm({ product, categories, modelLines, carMakers }: ProductFormProps) {
+export function ProductForm({ product, categories, carMakers, onSubmit }: ProductFormProps) {
   const [name, setName] = useState(product?.name || '')
   const [description, setDescription] = useState(product?.description || '')
   const [price, setPrice] = useState(product?.price?.toString() || '')
@@ -71,34 +29,38 @@ export function ProductForm({ product, categories, modelLines, carMakers }: Prod
   const [categoryId, setCategoryId] = useState(product?.categoryId || '')
   const [carMakerId, setCarMakerId] = useState(product?.modelLine?.carMakerId || '')
   const [modelLineId, setModelLineId] = useState(product?.modelLineId || '')
-  const [image, setImage] = useState(product?.image || '')
+  const [image, setImage] = useState<string>(product?.image || '')
   const [yearId, setYearId] = useState('')
   const [modificationId, setModificationId] = useState('')
 
-  const [filteredModelLines, setFilteredModelLines] = useState<ModelLine[]>([])
+  //const [filteredModelLines, setFilteredModelLines] = useState<ModelLine[]>([])
   const [years, setYears] = useState<Year[]>([])
   const [modifications, setModifications] = useState<Modification[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [modelLines, setModelLines] = useState<ModelLine[]>([])
 
   const router = useRouter()
   const { toast } = useToast()
 
   useEffect(() => {
     if (carMakerId) {
-      setFilteredModelLines(modelLines.filter(ml => ml.carMakerId === carMakerId))
+      const selectedCarMaker = carMakers.find(cm => cm.id === carMakerId)
+      setModelLines(selectedCarMaker?.modelLines || [])
     } else {
-      setFilteredModelLines([])
+      setModelLines([])
     }
-  }, [carMakerId, modelLines])
+  }, [carMakerId, carMakers])
 
   useEffect(() => {
     if (modelLineId) {
-      const selectedModelLine = modelLines.find(ml => ml.id === modelLineId)
-      setYears(selectedModelLine?.years || [])
+      fetch(`/api/years?modelLineId=${modelLineId}`)
+        .then((res) => res.json())
+        .then((data: Year[]) => setYears(data))
+        .catch(() => setYears([]))
     } else {
       setYears([])
     }
-  }, [modelLineId, modelLines])
+  }, [modelLineId])
 
   useEffect(() => {
     if (yearId) {
@@ -115,36 +77,32 @@ export function ProductForm({ product, categories, modelLines, carMakers }: Prod
     e.preventDefault()
     setIsSubmitting(true)
 
-    const formData = new FormData()
-    formData.append('name', name)
-    formData.append('description', description)
-    formData.append('price', price)
-    formData.append('stockQuantity', stockQuantity)
-    formData.append('categoryId', categoryId)
-    formData.append('modelLineId', modelLineId)
-    formData.append('yearId', yearId)
-    formData.append('modificationId', modificationId)
-    formData.append('image', image)
+    const selectedCategory = categories.find(cat => cat.id === categoryId)
+    const selectedModelLine = modelLines.find(ml => ml.id === modelLineId)
+    const selectedCarMaker = carMakers.find(cm => cm.id === carMakerId)
+    const selectedYear = years.find(y => y.id === yearId)
+    const selectedModification = modifications.find(mod => mod.id === modificationId)
+
+    const productData: ProductFormData = {
+      name,
+      description,
+      price: parseFloat(price),
+      stockQuantity: parseInt(stockQuantity),
+      image,
+      categoryName: selectedCategory?.name || '',
+      modificationName: selectedModification?.name || '',
+      year: selectedYear?.year || 0,
+      modelLineName: selectedModelLine?.name || '',
+      carMakerName: selectedCarMaker?.name || '',
+    }
 
     try {
-      const url = product ? `/api/products/${product.id}` : '/api/products'
-      const method = product ? 'PUT' : 'POST'
-
-      const response = await fetch(url, {
-        method,
-        body: formData,
+      await onSubmit(productData)
+      toast({
+        title: 'Success',
+        description: `Product ${product ? 'updated' : 'created'} successfully`,
       })
-
-      if (response.ok) {
-        toast({
-          title: 'Success',
-          description: `Product ${product ? 'updated' : 'created'} successfully`,
-        })
-        router.push('/admin/products')
-      } else {
-        const errorData = await response.json()
-        throw new Error(errorData.message || `Failed to ${product ? 'update' : 'create'} product`)
-      }
+      router.push('/admin/products')
     } catch (error) {
       console.error('Error in form submission:', error)
       toast({
@@ -190,7 +148,7 @@ export function ProductForm({ product, categories, modelLines, carMakers }: Prod
                   <SelectValue placeholder="Select a Model Line" />
                 </SelectTrigger>
                 <SelectContent>
-                  {filteredModelLines.map((line) => (
+                  {modelLines.map((line) => (
                     <SelectItem key={line.id} value={line.id}>{line.name}</SelectItem>
                   ))}
                 </SelectContent>
