@@ -70,7 +70,7 @@ export default async function SearchPage(props: { searchParams: Promise<{ [key: 
       <SearchBar initialQuery={query} />
       {query && (
         <h1 className="text-3xl font-bold mb-6 text-center">
-          Select a car for your "{query}" search
+          Select a car for your &quot;{query}&quot; search
         </h1>
       )}
       {category && (
