@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
+import { SearchBar } from '@/components/SearchBar'
 import { SearchComponent } from '@/components/SearchComponent'
 import { ProductCard } from '@/components/ProductCard'
-import { SearchBar } from '@/components/SearchBar'
 import prisma from '@/lib/prisma'
 
 async function SearchResults({ searchParams }: { searchParams: { [key: string]: string } }) {

@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Search, X, Mic } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 const searchExamples = [
@@ -14,12 +14,15 @@ const searchExamples = [
   'Honda Civic spark plugs'
 ]
 
-export function SearchBar() {
-  const [query, setQuery] = useState('')
+interface SearchBarProps {
+  initialQuery?: string;
+}
+
+export function SearchBar({ initialQuery = '' }: SearchBarProps) {
+  const [query, setQuery] = useState(initialQuery)
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const router = useRouter()
-  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -42,14 +45,12 @@ export function SearchBar() {
 
   const clearInput = () => {
     setQuery('')
-    inputRef.current?.focus()
   }
 
   return (
     <form onSubmit={handleSearch} className="w-full max-w-3xl mx-auto mb-8">
       <div className="relative bg-white rounded-full border-2 border-gray-300 flex items-center overflow-hidden">
         <Input
-          ref={inputRef}
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -77,14 +78,6 @@ export function SearchBar() {
               <span className="sr-only">Clear search</span>
             </Button>
           )}
-          <Button 
-            type="button"
-            variant="ghost"
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-          >
-            <Mic className="h-5 w-5 text-gray-500" />
-            <span className="sr-only">Voice search</span>
-          </Button>
           <Button 
             type="submit" 
             size="icon"
