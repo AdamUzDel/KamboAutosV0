@@ -126,14 +126,21 @@ export function SearchComponent({ initialCategory }: SearchComponentProps) {
       ...(initialCategory && { category: initialCategory }),
     });
 
-    if (pathname === '/search') {
-      // If we're already on the search page, update the URL without navigation
-      router.push(`/search?${params.toString()}`, { scroll: false });
-    } else {
-      // If we're on any other page, navigate to the search page
-      router.push(`/search?${params.toString()}`);
+    try {
+      if (pathname === '/search') {
+        // If we're already on the search page, update the URL without navigation
+        await router.push(`/search?${params.toString()}`, { scroll: false });
+      } else {
+        // If we're on any other page, navigate to the search page
+        await router.push(`/search?${params.toString()}`);
+      }
+      // Simulate a delay to ensure the loading state is visible
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    } catch (error) {
+      console.error('Error during search:', error);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }
 
   const isSearchDisabled = !selectedCarMaker || !selectedModelLine || !selectedYear || !selectedModification;
@@ -191,7 +198,11 @@ export function SearchComponent({ initialCategory }: SearchComponentProps) {
             </SelectContent>
           </Select>
         </div>
-        <Button className="mt-4 w-full" onClick={handleSearch} disabled={isSearchDisabled || isLoading}>
+        <Button 
+          className="mt-4 w-full" 
+          onClick={handleSearch} 
+          disabled={isSearchDisabled || isLoading}
+        >
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Searching...
