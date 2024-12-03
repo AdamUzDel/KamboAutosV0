@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma';
 export async function GET() {
   try {
     const featuredProducts = await prisma.part.findMany({
-      take: 3,
+      take: 8,
       include: { category: true },
     });
     return NextResponse.json(featuredProducts);

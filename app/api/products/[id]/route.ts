@@ -28,19 +28,24 @@ export async function PUT(
 ) {
   try {
     const {id} = await params
-    const body = await request.json()
+    const formData = await request.formData()
 
     const updatedProduct = await prisma.part.update({
       where: { id },
       data: {
-        ...(body.name && { name: body.name }),
-        ...(body.description && { description: body.description }),
-        ...(body.price && { price: parseFloat(body.price) }),
-        ...(body.stockQuantity && { stockQuantity: parseInt(body.stockQuantity) }),
-        ...(body.categoryId && { category: { connect: { id: body.categoryId } } }),
-        ...(body.modelLineId && { modelLine: { connect: { id: body.modelLineId } } }),
-        ...(body.yearId && { year: { connect: { id: body.yearId } } }),
+        name: formData.get('name') as string,
+        description: formData.get('description') as string,
+        price: parseFloat(formData.get('price') as string),
+        stockQuantity: parseInt(formData.get('stockQuantity') as string),
+        image: formData.get('image') as string,
+        category: { connect: { id: formData.get('categoryId') as string } },
+        modelLine: { connect: { id: formData.get('modelLineId') as string } },
+        //year: { connect: { id: formData.get('yearId') as string } },
+        modifications: {
+          set: [{ id: formData.get('modificationId') as string }],
+        },
       },
+      include: { category: true, modifications: true, modelLine: true},
     })
 
     return NextResponse.json(updatedProduct)

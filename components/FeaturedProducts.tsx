@@ -46,8 +46,8 @@ export function FeaturedProducts() {
     return <p className="text-center py-8 text-red-500">{error}</p>;
   }
 
-  const displayedProducts = featuredProducts.slice(0, 6);
-  const hasMoreProducts = featuredProducts.length > 6;
+  const displayedProducts = featuredProducts.slice(0, 8);
+  const hasMoreProducts = featuredProducts.length > 8;
 
   return (
     <section className="my-8 px-4 md:px-0">
@@ -82,7 +82,7 @@ export function FeaturedProducts() {
                         priority
                       />
                     </div>
-                    <p className="text-lg md:text-xl font-bold">${product.price.toFixed(2)}</p>
+                    <p className="text-lg md:text-xl font-bold">UGX {product.price.toFixed(2)}</p>
                     <p className="text-xs md:text-sm text-gray-500">{product.category.name}</p>
                   </CardContent>
                   <CardFooter>

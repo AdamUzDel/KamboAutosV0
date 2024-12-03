@@ -1,21 +1,54 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 
-const categories = [
-  { id: 1, name: 'Filters', image: '/categories/filters.svg', slug: 'engine-parts' },
-  { id: 2, name: 'Brake System', image: '/categories/brakes.svg', slug: 'brake-system' },
-  { id: 3, name: 'Steering', image: '/categories/steering.svg', slug: 'suspension-steering' },
-  { id: 4, name: 'Service Parts', image: '/categories/service-parts.svg', slug: 'electrical-lighting' },
-  { id: 5, name: 'Body & Exterior', image: '/categories/body.svg', slug: 'body-exterior' },
-  { id: 6, name: 'Interior', image: '/categories/interior.svg', slug: 'interior' },
-]
+interface Category {
+  id: string
+  name: string
+  image: string
+  slug: string
+}
 
 export function CarPartCategories() {
+  const [categories, setCategories] = useState<Category[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/categories')
+        if (!response.ok) {
+          throw new Error('Failed to fetch categories')
+        }
+        const data = await response.json()
+        setCategories(data)
+      } catch (err) {
+        setError('Error loading categories. Please try again later.')
+        console.error('Error fetching categories:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchCategories()
+  }, [])
+
   const displayedCategories = categories.slice(0, 5)
   const hasMoreCategories = categories.length > 5
+
+  if (isLoading) {
+    return <div className="text-center py-8">Loading categories...</div>
+  }
+
+  if (error) {
+    return <div className="text-center py-8 text-red-500">{error}</div>
+  }
 
   return (
     <section className="my-8 px-4 md:px-0">
@@ -49,7 +82,7 @@ export function CarPartCategories() {
                       priority
                     />
                   </div>
-                  <Link href={`/category/${category.slug}`} className="w-full">
+                  <Link href={`/category/${category.id}`} className="w-full">
                     <Button variant="outline" className="w-full text-sm md:text-base">
                       Browse {category.name}
                     </Button>

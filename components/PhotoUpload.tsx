@@ -83,13 +83,15 @@ export function PhotoUpload({ onPhotoUploaded }: PhotoUploadProps) {
     }
   }
 
-  const handleCameraCapture = () => {
+  const handleCameraCapture = (e: React.MouseEvent) => {
+    e.preventDefault();
     if (cameraInputRef.current) {
       cameraInputRef.current.click()
     }
   }
 
-  const handleFileUpload = () => {
+  const handleFileUpload = (e: React.MouseEvent) => {
+    e.preventDefault();
     if (fileInputRef.current) {
       fileInputRef.current.click()
     }
@@ -113,11 +115,11 @@ export function PhotoUpload({ onPhotoUploaded }: PhotoUploadProps) {
         ref={cameraInputRef}
       />
       <div className="flex flex-col sm:flex-row gap-2 w-full">
-        <Button onClick={handleCameraCapture} disabled={isUploading} className="w-full sm:w-auto">
+        <Button onClick={handleCameraCapture} disabled={isUploading} className="w-full sm:w-auto" type="button">
           <Camera className="mr-2 h-4 w-4" />
           Take Photo
         </Button>
-        <Button onClick={handleFileUpload} disabled={isUploading} className="w-full sm:w-auto">
+        <Button onClick={handleFileUpload} disabled={isUploading} className="w-full sm:w-auto" type="button">
           <Upload className="mr-2 h-4 w-4" />
           Upload Photo
         </Button>

@@ -8,6 +8,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { PhotoUpload } from '@/components/PhotoUpload'
+import { useToast } from "@/components/ui/use-toast"
+import { Loader2 } from 'lucide-react'
+import Image from 'next/image'
 
 export default function AddProductForm({ carMakers, categories, onSubmit }: AddProductFormProps) {
   const [modelLines, setModelLines] = useState<ModelLine[]>([])
@@ -25,6 +29,9 @@ export default function AddProductForm({ carMakers, categories, onSubmit }: AddP
   const [price, setPrice] = useState<number>(0)
   const [stockQuantity, setStockQuantity] = useState<number>(0)
   const [image, setImage] = useState<string>('')
+
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { toast } = useToast()
 
   useEffect(() => {
     if (selectedCarMaker) {
@@ -59,8 +66,15 @@ export default function AddProductForm({ carMakers, categories, onSubmit }: AddP
     }
   }, [selectedYear])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsSubmitting(true)
+
+    const selectedCarMakerName = carMakers.find(maker => maker.id === selectedCarMaker)?.name
+    const selectedModelLineName = modelLines.find(line => line.id === selectedModelLine)?.name
+    const selectedYearValue = years.find(year => year.id === selectedYear)?.year
+    const selectedModificationName = modifications.find(mod => mod.id === selectedModification)?.name
+    const selectedCategoryName = categories.find(cat => cat.id === selectedCategory)?.name
 
     const productData: ProductFormData = {
       name,
@@ -68,11 +82,35 @@ export default function AddProductForm({ carMakers, categories, onSubmit }: AddP
       price,
       stockQuantity,
       image,
-      categoryId: selectedCategory,
-      modificationId: selectedModification,
+      categoryName: selectedCategoryName || '',
+      modificationName: selectedModificationName || '',
+      year: selectedYearValue || 0,
+      modelLineName: selectedModelLineName || '',
+      carMakerName: selectedCarMakerName || '',
     }
 
-    onSubmit(productData)
+    try {
+      await onSubmit(productData)
+      toast({
+        title: "Success",
+        description: "Product added successfully",
+        variant: "default",
+      })
+      // Reset form fields here if needed
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add product. Please try again.",
+        variant: "destructive",
+      })
+      console.error(error);
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handlePhotoUploaded = (url: string) => {
+    setImage(url)
   }
 
   return (
@@ -208,13 +246,38 @@ export default function AddProductForm({ carMakers, categories, onSubmit }: AddP
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="image">Image URL</Label>
-            <Input id="image" value={image} onChange={(e) => setImage(e.target.value)} />
+            <Label>Product Image</Label>
+            <PhotoUpload onPhotoUploaded={handlePhotoUploaded} />
+            {image && (
+              <div className="mt-2">
+                <Image 
+                  src={image} 
+                  alt="Product Image" 
+                  width={100} 
+                  height={100} 
+                  className="rounded-md"
+                />
+              </div>
+            )}
           </div>
         </form>
       </CardContent>
       <CardFooter>
-        <Button type="submit" className="w-full" onClick={handleSubmit}>Add Product</Button>
+        <Button 
+          type="submit" 
+          className="w-full" 
+          onClick={handleSubmit} 
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Submitting...
+            </>
+          ) : (
+            'Add Product'
+          )}
+        </Button>
       </CardFooter>
     </Card>
   )

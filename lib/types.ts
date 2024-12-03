@@ -29,15 +29,18 @@ export type CarMaker = {
     image?: string;
   };
 
-export type ProductFormData = {
+  export interface ProductFormData {
     name: string;
     description: string;
     price: number;
     stockQuantity: number;
     image: string;
-    categoryId: string;
-    modificationId: string;
-  };
+    categoryName: string;
+    modificationName: string;
+    year: number;
+    modelLineName: string;
+    carMakerName: string;
+  }
 
 export interface AddProductFormProps {
     carMakers: CarMaker[];

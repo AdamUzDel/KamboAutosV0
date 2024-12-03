@@ -1,18 +1,17 @@
 "use client"
 
-
 import React, { useEffect, useState } from 'react';
 import AddProductForm from '@/components/admin/AddProductForm';
 import { CarMaker, Category, ProductFormData } from '@/lib/types';
 import { Toaster } from "@/components/ui/toaster"
-
-
+import { useToast } from "@/components/ui/use-toast"
 
 const AddProduct: React.FC = () => {
   const [carMakers, setCarMakers] = useState<CarMaker[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast()
 
   useEffect(() => {
     // Fetch car makers and categories concurrently
@@ -60,11 +59,20 @@ const AddProduct: React.FC = () => {
         throw new Error('Failed to create product');
       }
 
-      const newProduct = await response.json();
+      //const newProduct = await response.json();
       alert('Product created successfully!');
-      console.log(newProduct);
+      toast({
+        title: "Success",
+        description: "Product created successfully!",
+        variant: "default",
+      })
     } catch (err) {
       alert('Error creating product. Please try again.');
+      toast({
+        title: "Error",
+        description: "Failed to create product. Please try again.",
+        variant: "destructive",
+      })
       console.error(err);
     }
   };
@@ -85,37 +93,3 @@ const AddProduct: React.FC = () => {
 };
 
 export default AddProduct;
-
-
-
-/* 
-export default async function AddProduct() {
-  const [categories, carMakers] = await Promise.all([
-    prisma.category.findMany(),
-    prisma.carMaker.findMany({
-      include: {
-        modelLines: {
-          include: {
-            years: true
-          },
-        },
-      },
-    })
-  ])
-
-  const modelLines = carMakers.flatMap(cm => cm.modelLines)
-  const year = modelLines.flatMap(ml => ml.years)
-  //const modifications = year.flatMap(y => y.modifications)
-
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Add New Product</h1>
-      <ProductForm
-        categories={categories}
-        modelLines={modelLines}
-        carMakers={carMakers}
-      />
-      <Toaster />
-    </div>
-  )
-} */
