@@ -4,11 +4,15 @@ import { useState, useEffect } from 'react'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
-import { Search } from 'lucide-react'
+import { Search, Loader2 } from 'lucide-react'
 import { CarMaker, ModelLine, Year, Modification } from '@prisma/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-export function SearchComponent() {
+interface SearchComponentProps {
+  initialCategory?: string;
+}
+
+export function SearchComponent({ initialCategory }: SearchComponentProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -21,6 +25,7 @@ export function SearchComponent() {
   const [selectedModelLine, setSelectedModelLine] = useState(searchParams.get('modelLine') || '')
   const [selectedYear, setSelectedYear] = useState(searchParams.get('year') || '')
   const [selectedModification, setSelectedModification] = useState(searchParams.get('modification') || '')
+  const [isLoading, setIsLoading] = useState(false)
 
   // Handler functions to reset dependent selections
   const handleCarMakerChange = (value: string) => {
@@ -111,24 +116,27 @@ export function SearchComponent() {
     fetchModifications();
   }, [selectedYear]);
 
-  const handleSearch = () => {
-    if (selectedModification) {
-      const params = new URLSearchParams({
-        carMaker: selectedCarMaker,
-        modelLine: selectedModelLine,
-        year: selectedYear,
-        modification: selectedModification,
-      });
+  const handleSearch = async () => {
+    setIsLoading(true);
+    const params = new URLSearchParams({
+      ...(selectedCarMaker && { carMaker: selectedCarMaker }),
+      ...(selectedModelLine && { modelLine: selectedModelLine }),
+      ...(selectedYear && { year: selectedYear }),
+      ...(selectedModification && { modification: selectedModification }),
+      ...(initialCategory && { category: initialCategory }),
+    });
 
-      if (pathname === '/search') {
-        // If we're already on the search page, update the URL without navigation
-        router.push(`/search?${params.toString()}`, { scroll: false });
-      } else {
-        // If we're on any other page, navigate to the search page
-        router.push(`/search?${params.toString()}`);
-      }
+    if (pathname === '/search') {
+      // If we're already on the search page, update the URL without navigation
+      router.push(`/search?${params.toString()}`, { scroll: false });
+    } else {
+      // If we're on any other page, navigate to the search page
+      router.push(`/search?${params.toString()}`);
     }
+    setIsLoading(false);
   }
+
+  const isSearchDisabled = !selectedCarMaker || !selectedModelLine || !selectedYear || !selectedModification;
 
   return (
     <Card>
@@ -183,8 +191,16 @@ export function SearchComponent() {
             </SelectContent>
           </Select>
         </div>
-        <Button className="mt-4 w-full" onClick={handleSearch} disabled={!selectedModification}>
-          <Search className="mr-2 h-4 w-4" /> Search Parts
+        <Button className="mt-4 w-full" onClick={handleSearch} disabled={isSearchDisabled || isLoading}>
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Searching...
+            </>
+          ) : (
+            <>
+              <Search className="mr-2 h-4 w-4" /> Search Parts
+            </>
+          )}
         </Button>
       </CardContent>
     </Card>

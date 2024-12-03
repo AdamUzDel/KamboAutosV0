@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, ChevronDown, ChevronUp } from 'lucide-react'
 
 interface Category {
   id: string
@@ -18,6 +18,7 @@ export function CarPartCategories() {
   const [categories, setCategories] = useState<Category[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showAll, setShowAll] = useState(false)
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -39,8 +40,8 @@ export function CarPartCategories() {
     fetchCategories()
   }, [])
 
-  const displayedCategories = categories.slice(0, 5)
-  const hasMoreCategories = categories.length > 5
+  const displayedCategories = showAll ? categories : categories.slice(0, 10)
+  const hasMoreCategories = categories.length > 10
 
   if (isLoading) {
     return <div className="text-center py-8">Loading categories...</div>
@@ -54,45 +55,57 @@ export function CarPartCategories() {
     <section className="my-8 px-4 md:px-0">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl md:text-2xl font-semibold">Shop by Category</h2>
-        {hasMoreCategories && (
-          <Link href="/categories" passHref>
-            <Button variant="outline" className="flex items-center text-sm md:text-base">
-              More Categories
-              <ChevronRight className="ml-2 h-4 w-4" />
-            </Button>
+        <Link href="/categories" passHref>
+          <Button variant="outline" className="flex items-center text-sm md:text-base">
+            All Categories
+            <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        </Link>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {displayedCategories.map((category) => (
+          <Link 
+            href={`/search?category=${encodeURIComponent(category.name)}`} 
+            key={category.id}
+            className="block"
+          >
+            <Card className="h-full hover:shadow-lg transition-shadow duration-200 overflow-hidden">
+              <div className="relative w-full px-4 pt-[100%]">
+                <Image
+                  src={category.image}
+                  alt={category.name}
+                  fill
+                  sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
+                  className="object-cover"
+                  priority
+                />
+              </div>
+              <CardHeader className="p-2">
+                <CardTitle className="text-sm text-center truncate">{category.name}</CardTitle>
+              </CardHeader>
+            </Card>
           </Link>
-        )}
+        ))}
       </div>
-      <div className="relative">
-        <div className="flex overflow-x-auto pb-6 -mx-4 px-4 space-x-4 md:space-x-6 snap-x scrollbar-hide">
-          {displayedCategories.map((category) => (
-            <div key={category.id} className="flex-none w-64 md:w-72 snap-start">
-              <Card className="h-full hover:shadow-lg transition-shadow duration-200">
-                <CardHeader>
-                  <CardTitle className="text-sm md:text-base truncate">{category.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center">
-                  <div className="relative w-full h-40 mb-4">
-                    <Image
-                      src={category.image}
-                      alt={category.name}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      className="rounded-md object-contain"
-                      priority
-                    />
-                  </div>
-                  <Link href={`/category/${category.id}`} className="w-full">
-                    <Button variant="outline" className="w-full text-sm md:text-base">
-                      Browse {category.name}
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            </div>
-          ))}
+      {hasMoreCategories && (
+        <div className="mt-6 text-center">
+          <Button
+            variant="outline"
+            onClick={() => setShowAll(!showAll)}
+            className="flex items-center mx-auto"
+          >
+            {showAll ? (
+              <>
+                Show Less <ChevronUp className="ml-2 h-4 w-4" />
+              </>
+            ) : (
+              <>
+                Show More <ChevronDown className="ml-2 h-4 w-4" />
+              </>
+            )}
+          </Button>
         </div>
-      </div>
+      )}
     </section>
   )
 }

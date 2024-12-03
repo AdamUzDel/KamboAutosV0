@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -48,29 +47,29 @@ export default function CategoriesPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">All Categories</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {categories.map((category) => (
-          <Card key={category.id} className="hover:shadow-lg transition-shadow duration-200">
-            <CardHeader>
-              <CardTitle className="text-lg truncate">{category.name}</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center">
-              <div className="relative w-full h-40 mb-4">
+          <Link 
+            href={`/search?category=${encodeURIComponent(category.name)}`} 
+            key={category.id}
+            className="block"
+          >
+            <Card className="h-full hover:shadow-lg transition-shadow duration-200 overflow-hidden">
+              <div className="relative w-full pt-[100%]">
                 <Image
                   src={category.image}
                   alt={category.name}
                   fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="rounded-md object-contain"
+                  sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
+                  className="object-cover"
+                  priority
                 />
               </div>
-              <Link href={`/category/${category.id}`} className="w-full">
-                <Button variant="outline" className="w-full">
-                  Browse {category.name}
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+              <CardHeader className="p-2">
+                <CardTitle className="text-sm text-center truncate">{category.name}</CardTitle>
+              </CardHeader>
+            </Card>
+          </Link>
         ))}
       </div>
     </div>
