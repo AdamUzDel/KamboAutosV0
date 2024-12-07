@@ -221,7 +221,7 @@ export default function CarMakersPage() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Logo</TableHead>
-              <TableHead>Model Lines</TableHead>
+              {/* <TableHead>Model Lines</TableHead> */}
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -242,7 +242,7 @@ export default function CarMakersPage() {
                     <span>No logo</span>
                   )}
                 </TableCell>
-                <TableCell>{carMaker.modelLines.length}</TableCell>
+                {/* <TableCell>{ carMaker.modelLines.length </TableCell> */}
                 <TableCell>
                   <div className="flex space-x-2">
                     <Button variant="ghost" onClick={() => handleEdit(carMaker)}>
